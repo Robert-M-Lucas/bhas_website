@@ -44,7 +44,7 @@ def setup(request):
         Q(deleted=True)
     ).order_by('-start_time')
 
-    return render(request, "backend/setup.html",
+    return render(request, "setup/setup.html",
                   {
                       "pagename": "setup",
                       "future_events": future_events,
@@ -155,7 +155,7 @@ def edit(request, event_id):
             event.save()
             saved = True
 
-    return render(request, "backend/edit.html",
+    return render(request, "setup/edit.html",
                   {
                       "pagename": "setup",
                       "event": event,
@@ -170,7 +170,7 @@ def edit_zones(request, event_id):
     if not request.user.is_authenticated:
         return redirect("/auth/login")
 
-    return render(request, "backend/edit_zones.html")
+    return render(request, "setup/edit_zones.html")
 
 
 def delete(request, event_id):

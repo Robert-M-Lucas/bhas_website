@@ -5,7 +5,10 @@
     <title>Edit: {{ event.title }}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"/>
     <link rel="icon" href="{% static 'icon.png' %}">
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script src="{% static 'setup/edit.js' %}" defer></script>
 </head>
 <body>
     {% include "public/header_snippet.html" %}
@@ -45,6 +48,7 @@
                     <label for="end-time" class="form-label text-danger"><b>{{ error.end_time }}</b></label>
                 {% endif %}
             </div>
+            <div id="map"></div>
             <div class="mb-3">
                 <button class="btn btn-outline-success" type="submit">Save</button>
                 <a href="zones"><button class="btn btn-primary" type="button">Edit Zones</button></a>
