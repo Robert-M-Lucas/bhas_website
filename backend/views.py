@@ -1,3 +1,5 @@
+from datetime import tzinfo
+
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
