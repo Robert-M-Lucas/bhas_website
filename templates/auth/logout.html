@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Login</title>
+	<meta charset="utf-8" />
+	{% load static %}
+	<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+	<link rel="icon" href="{% static 'icon.png' %}">
+	<style>
+		html,
+		body {
+		  height:100%
+		}
+	</style>
+</head>
+
+<body class="text-center text-bg-dark" style="display: flex;">
+	<main class="w-100 m-auto" style="max-width: 330px; padding: 15px;">
+        <div class="container">
+            <h1 class="h1 text-white">Log Out?</h1>
+            <br>
+            <p class="text-muted">Currently logged in as {{ user.username }}</p>
+            <a href="/auth/logout/instant/"><button class="w-100 btn btn-lg btn-primary" type="submit">Log Out</button></a>
+            <hr>
+            <p class="text-muted">
+              <b><a style="text-decoration: none;" href="/" onclick="window.history.back();return false;">Back</a></b> ● <b><a style="text-decoration: none;" href="/">Home</a></b>
+            </p>
+        </div>
+	</main>
+</body>

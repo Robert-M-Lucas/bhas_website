@@ -1,0 +1,37 @@
+{% load static %}
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <div class="col-sm-auto" style="margin-right:20px">
+                <div class="d-flex align-items-center mb-2 mb-lg-0">
+                    <a href="https://www.thesubath.com/hideandseeksoc/">
+                        <img class="rounded" style="margin-right: 10px" src="{% static 'icon.png'%}" width="32" height="32" alt="Bath Hide and Seek Society Logo">
+                    </a>
+                        
+                    <a href="/" class="text-white text-decoration-none">
+                        <h3 class="text-decoration-none" style="margin-bottom:5px">Bath Hide and Seek</h3>
+                    </a>
+                </div>
+            </div>
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="/" class="nav-link px-2 text-white {% if pagename|lower == "status" %} fw-bold {% endif %}">Status</a></li>
+            
+                {% if user.is_authenticated %}
+                    <li><a href="/setup/" class="nav-link px-2 text-white {% if pagename|lower == "setup" %} fw-bold {% endif %}">Setup</a></li>
+                {% else %}
+                    <li><a href="/auth/login/" class="nav-link px-2 text-muted">Setup</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="text-end">
+                {% if user.is_authenticated %}
+                    <label class="label fw-bold" style="margin-right: 10px">{{ user.username }}</label>
+                    <a href="/auth/logout/"><button type="button" class="btn btn-outline-light me-2">Logout</button></a>
+                {% else %}
+                    <a href="/auth/login/"><button type="button" class="btn btn-light me-2">Login</button></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>

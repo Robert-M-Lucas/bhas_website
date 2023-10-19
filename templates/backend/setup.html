@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Setup</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+    <link rel="icon" href="{% static 'icon.png' %}">
+</head>
+<body>
+    {% include "public/header_snippet.html" %}
+
+    <br>
+    
+    <div class="container">
+        <div class="container">
+            <a href="new"><button class="btn btn-success">Create new event</button></a>
+        </div>
+    
+        <h1>Upcoming Events</h1>
+        <div class="container">
+        {% for event in future_events %}
+            {% include "backend/setup_event_start_snippet.html" %}
+            <a href="edit/{{ event.id }}"><button class="btn btn-primary">Edit</button></a>
+            <a href="delete/{{ event.id }}"><button class="btn btn-outline-danger">Delete</button></a>
+            {% include "backend/setup_event_end_snippet.html" %}
+        {% endfor %}
+        {% if future_events.count == 0 %}
+            <p class="text-muted">No upcoming events</p>
+        {% endif %}
+        </div>
+            
+        <h1>Past Events</h1>
+        <div class="container">
+        {% for event in past_events %}
+            {% include "backend/setup_event_start_snippet.html" %}
+            <a href="edit/{{ event.id }}"><button class="btn btn-primary">Edit</button></a>
+            <a href="delete/{{ event.id }}"><button class="btn btn-outline-danger">Delete</button></a>
+            {% include "backend/setup_event_end_snippet.html" %}
+        {% endfor %}
+        {% if past_events.count == 0 %}
+            <p class="text-muted">No past events</p>
+        {% endif %}
+        </div>
+    
+        <h1>Deleted Events</h1>
+        <div class="container">
+        {% for event in deleted_events %}
+            {% include "backend/setup_event_start_snippet.html" %}
+            <a href="restore/{{ event.id }}"><button class="btn btn-outline-success">Restore</button></a>
+            {% include "backend/setup_event_end_snippet.html" %}
+        {% endfor %}
+        {% if deleted_events.count == 0 %}
+            <p class="text-muted">No deleted events</p>
+        {% endif %}
+        </div>
+    </div>
+</body>
+</html>

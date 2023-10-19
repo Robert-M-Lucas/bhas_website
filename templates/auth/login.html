@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Login</title>
+	<meta charset="utf-8" />
+	{% load static %}
+	<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+	<link rel="icon" href="{% static 'icon.png' %}">
+	<style>
+		html,
+		body {
+		  height:100%
+		}
+	</style>
+</head>
+
+<body class="text-center text-bg-dark" style="display: flex;">
+	<main class="w-100 m-auto" style="max-width: 330px; padding: 15px;">
+	  <form action="" method="post">
+		{% csrf_token %}
+		<h1 class="h1 text-white">Sign in</h1>
+		<br>
+		<div class="form-floating">
+		  <input type="username" style="border-bottom-right-radius: 0; border-bottom-left-radius: 0;" class="form-control" name="username" id="username" placeholder="Username">
+		  <label for="username" style="color: black">Username</label>
+		</div>
+		<div class="form-floating">
+		  <input type="password" style="border-top-left-radius: 0; border-top-right-radius: 0;" class="form-control" name="password" id="password" placeholder="Password">
+		  <label for="password" style="color: black">Password</label>
+		</div>
+		<br>
+		<button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+		<hr>
+		{% if login_failed %}
+	  		<p>Login failed</p>
+	  	{% else %}
+			<p class="text-muted">
+                There is no way to create an account. 
+                This is used by the Bath Hide and Seek Society to set up sessions.
+            </p>
+		{% endif %}
+			<p class="text-muted">
+				<b><a style="text-decoration: none;" href="/" onclick="window.history.back();return false;">Back</a></b> ● <b><a style="text-decoration: none;" href="/">Home</a></b>
+			</p>
+	  </form>
+	</main>
+</body>
