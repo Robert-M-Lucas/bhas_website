@@ -1,179 +1,165 @@
 from dataclasses import dataclass
-from datetime import tzinfo, datetime
 
-import pytz
 from django.db.models import Q
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.utils.timezone import now
 
-from .models import Event, Zone
+from .models import Event, Zone, SocietyMessage, Position
 
+"""
+Position
 
-def setup(request):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
+latitude: float
+longitude: float
+"""
 
-    future_events = Event.objects.filter(
-        Q(start_time__gte=now(), deleted=False)
-    ).order_by('start_time')
+"""
+Circle
 
-    past_events = Event.objects.filter(
-        Q(start_time__lt=now(), deleted=False)
-    ).order_by('-start_time')
+index int
+position Position
+radius float
+"""
 
-    deleted_events = Event.objects.filter(
-        Q(deleted=True)
-    ).order_by('-start_time')
+"""
+Polygon
 
-    return render(request, "backend/setup.html",
-                  {
-                      "pagename": "setup",
-                      "future_events": future_events,
-                      "past_events": past_events,
-                      "deleted_events": deleted_events,
-                  }
-                  )
+index int
+points [Position]
+holePoints [Position]
+"""
 
+"""
+Entire
 
-def create_empty_event(request):
-    event = Event.objects.create(
-        created_by=request.user,
-        start_time=now(),
-        end_time=now(),
-        title="New Event",
-        description="Event Description"
-    )
-    return event
-
-
-def new(request):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
-
-    event_id = create_empty_event(request).id
-
-    return redirect(f"/setup/edit/{event_id}")
+societyMessage string
+gameState bool
+nextGame int // -1 means no next game
+center Position
+circles [Circle]
+polygons [Polygon]
+nextZone int // Negative if game ending
+"""
 
 
 @dataclass
-class EditError:
-    title: str = None
-    description: str = None
-    start_time: str = None
-    end_time: str = None
+class Circle:
+    index: int
+    center: Position
+    radius: float
 
-    def is_error(self):
-        return self.title is not None or self.description is not None or self.start_time is not None or self.end_time is not None
+    def as_json(self):
+        return f'{{"index":{self.index},{self.center.as_json()},"radius":{self.radius}}}'
 
 
-def edit(request, event_id):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
+@dataclass
+class Polygon:
+    index: int
+    points: [Position]
+    hole_points: [Position]
 
-    error = EditError()
-    saved = False
+    def as_json(self):
+        json = f'{{"index":{self.index},"points":['
+        json += ','.join([pos.as_json() for pos in self.points])
+        json += f'],"holePoints":['
+        json += ','.join([pos.as_json() for pos in self.hole_points])
+        json += f']}}'
+        return json
 
+
+@dataclass
+class Entire:
+    society_message: str
+    game_state: bool
+    next_game: int
+    center: Position
+    circles: [Circle]
+    polygons: [Polygon]
+    next_zone: int
+
+    def as_json(self):
+        json = f'{{"societyMessage":"{self.society_message}","gameState":{str(self.game_state).lower()},"nextGame":{self.next_game},"center":{self.center.as_json()},"circles":['
+        json += ','.join([circle.as_json() for circle in self.circles])
+        json += f'],"polygons":['
+        json += ','.join([polygon.as_json() for polygon in self.polygons])
+        json += f'],"nextZone":{self.next_zone}}}'
+        return json
+
+
+def app_status(request):
     try:
-        event = Event.objects.get(id=event_id)
-    except Event.DoesNotExist:
-        return render(request, "404.html")
+        society_message = SocietyMessage.objects.get(deleted=False).message
+    except SocietyMessage.DoesNotExist:
+        SocietyMessage.objects.create(message="Welcome to Bath Hide and Seek")
+        society_message = "Welcome to Bath Hide and Seek"
 
-    zones = Zone.objects.filter(
-        Q(event_id=event_id)
-    ).order_by('start_time')
+    current_game = Event.objects.filter(
+        Q(start_time__lt=now(), deleted=False)
+    ).order_by('-start_time')
 
-    if request.POST:
-        title = request.POST["title"]
-        description = request.POST["description"]
-        start_time = request.POST["start-time"]
-        end_time = request.POST["end-time"]
+    if len(current_game) == 0:
+        current_game = None
+    else:
+        current_game = current_game[0]
 
-        if len(title) == 0:
-            error.title = "Title can't be empty"
-        elif len(title) > 50:
-            error.title = "Title must have fewer than 50 character"
-            title = title[:50]
+    game_in_progress = current_game is not None and current_game.end_time > now()
 
-        if len(description) == 0:
-            error.description = "Description can't be empty"
-        elif len(description) > 1000:
-            error.description = "Description must have fewer than 1000 character"
-            description = description[:1000]
+    next_game = -1
+    center = Position(0, 0)
+    circles = []
+    polygons = []
+    next_zone = 0
+    if game_in_progress:
+        center = Position.from_string(current_game.center)
 
-        try:
-            start_time = datetime.strptime(start_time, "%d/%m/%Y %H:%M:%S")
-            try:
-                start_time = pytz.timezone("Europe/London").localize(start_time)
-            except pytz.exceptions.AmbiguousTimeError:
-                start_time = start_time = pytz.timezone("Europe/London").localize(start_time, is_dst=False)
-        except ValueError:
-            error.start_time = "Improperly formatted date/time"
-            start_time = now()
+        active_zones = Zone.objects.filter(
+            Q(start_time__lt=now(), end_time__gt=now(), deleted=False)
+        )
 
-        try:
-            end_time = datetime.strptime(end_time, "%d/%m/%Y %H:%M:%S")
-            try:
-                end_time = pytz.timezone("Europe/London").localize(end_time)
-            except pytz.exceptions.AmbiguousTimeError:
-                end_time = end_time = pytz.timezone("Europe/London").localize(end_time, is_dst=False)
-        except ValueError:
-            error.end_time = "Improperly formatted date/time"
-            end_time = now()
+        for zone in active_zones:
+            if zone.is_circle:
+                circles.append(Circle(
+                    zone.index,
+                    Position.from_string(zone.points_or_center),
+                    float(zone.hole_points_or_radius)
+                ))
+            else:
+                points = [Position.from_string(x) for x in zone.points_or_center_radius.split(';')]
+                hole_points = [Position.from_string(x) for x in zone.hole_points_or_radius.split(';')]
 
-        if end_time < start_time and error.end_time is None:
-            error.end_time = "Event ends before it start"
-            end_time = start_time
+                polygons.append(Polygon(
+                    zone.index,
+                    points,
+                    hole_points
+                ))
 
-        event.title = title
-        event.description = description
-        event.start_time = start_time
-        event.end_time = end_time
+        next_zones = Zone.objects.filter(
+            Q(start_time__gt=now(), deleted=False)
+        ).order_by('start_time')
 
-        if not error.is_error():
-            event.save()
-            saved = True
+        if len(next_zones) == 0:
+            # Negative to indicate game end
+            next_zone = -int((current_game.end_time - now()).total_seconds())
+        else:
+            next_zone = next_zones[0]
+            next_zone = int((next_zone.start_time - now()).total_seconds())
 
-    return render(request, "backend/edit.html",
-                  {
-                      "pagename": "setup",
-                      "event": event,
-                      "zones": zones,
-                      "error": error,
-                      "saved": saved
-                  }
-                  )
+    else:
+        next_events = Event.objects.filter(
+            Q(start_time__gt=now(), deleted=False)
+        ).order_by('start_time')
 
+        if len(next_events) > 0:
+            next_game = int((next_events[0].start_time - now()).total_seconds())
 
-def edit_zones(request, event_id):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
+    json = Entire(
+        society_message=society_message,
+        game_state=game_in_progress,
+        next_game=next_game,
+        center=center,
+        circles=circles,
+        polygons=polygons,
+        next_zone=next_zone
+    ).as_json()
 
-    return render(request, "backend/edit_zones.html")
-
-
-def delete(request, event_id):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
-
-    try:
-        event = Event.objects.get(id=event_id)
-    except Event.DoesNotExist:
-        return render(request, "404.html")
-    event.deleted = True
-    event.save()
-
-    return redirect("/setup")
-
-
-def restore(request, event_id):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
-
-    try:
-        event = Event.objects.get(id=event_id)
-    except Event.DoesNotExist:
-        return render(request, "404.html")
-    event.deleted = False
-    event.save()
-
-    return redirect("/setup")
+    return HttpResponse(json)

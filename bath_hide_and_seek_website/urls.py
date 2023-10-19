@@ -7,7 +7,8 @@ import backend.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('login.urls')),
-    path('setup/', include('backend.urls'))
+    path('setup/', include('setup.urls')),
+    path('app_status/', include('backend.urls'))
 ]
 
 urlpatterns += staticfiles_urlpatterns()
