@@ -11,7 +11,7 @@ class Position:
 
     @staticmethod
     def from_string(string):
-        pos = [float(x) for x in string.center.split(',')]
+        pos = [float(x) for x in string.split(',')]
         return Position(pos[0], pos[1])
 
     def to_string(self):
