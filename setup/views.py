@@ -83,9 +83,10 @@ class EditError:
     description: str = None
     start_time: str = None
     end_time: str = None
+    position: str = None
 
     def is_error(self):
-        return self.title is not None or self.description is not None or self.start_time is not None or self.end_time is not None
+        return self.title is not None or self.description is not None or self.start_time is not None or self.end_time is not None or self.position is not None
 
 
 def edit(request, event_id):
@@ -109,6 +110,8 @@ def edit(request, event_id):
         description = request.POST["description"]
         start_time = request.POST["start-time"]
         end_time = request.POST["end-time"]
+        latitude = request.POST["latitude"]
+        longitude = request.POST["longitude"]
 
         if len(title) == 0:
             error.title = "Title can't be empty"
@@ -146,10 +149,17 @@ def edit(request, event_id):
             error.end_time = "Event ends before it start"
             end_time = start_time
 
+        position = "0.0,0.0"
+        try:
+            position = Position(float(latitude), float(longitude)).to_string()
+        except ValueError:
+            error.position = "Latitude and longitude must be formatted as two valid decimals"
+
         event.title = title
         event.description = description
         event.start_time = start_time
         event.end_time = end_time
+        event.center = position
 
         if not error.is_error():
             event.save()
@@ -159,6 +169,7 @@ def edit(request, event_id):
                   {
                       "pagename": "setup",
                       "event": event,
+                      "center": Position.from_string(event.center),
                       "zones": zones,
                       "error": error,
                       "saved": saved

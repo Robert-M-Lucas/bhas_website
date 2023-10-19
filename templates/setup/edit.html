@@ -48,8 +48,25 @@
                     <label for="end-time" class="form-label text-danger"><b>{{ error.end_time }}</b></label>
                 {% endif %}
             </div>
-            <div id="map"></div>
-            <div class="mb-3">
+        
+            <p class="mb-1">Click to select a rough centre for the event:</p>
+            <div id="map" style="height: 30rem; width: 100%">
+                
+            </div>
+            <button onclick="goToRealPosition()" type="button">Recentre</button>
+            <button onclick="goToMarker()" type="button">Find Marker</button>
+        
+            <div class="input-group mt-3 mb-3">
+                <span class="input-group-text">Latitude</span>
+                <input id="latitude" name="latitude" onchange="onInputChange()" onkeyup="onInputChange()" type="text" class="form-control" placeholder="e.g. -2.12341234" aria-label="Latitude" value="{{ center.latitude }}">
+                <span class="input-group-text">Longitude</span>
+                <input id="longitude" name="longitude" onchange="onInputChange()" onkeyup="onInputChange()" type="text" class="form-control" placeholder="e.g. 2.12341234" aria-label="Longitude" value="{{ center.longitude }}">
+                {% if error.position %}
+                    <label for="longitude" class="form-label text-danger"><b>{{ error.position }}</b></label>
+                {% endif %}
+            </div>
+        
+            <div class="mt-3 mb-3">
                 <button class="btn btn-outline-success" type="submit">Save</button>
                 <a href="zones"><button class="btn btn-primary" type="button">Edit Zones</button></a>
             </div>

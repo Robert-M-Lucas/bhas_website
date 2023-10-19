@@ -21,7 +21,7 @@ class Position:
         return f'{round(self.latitude, 10)},{round(self.longitude, 10)}'
 
     def as_json(self):
-        return f'{{"latitude":{self.latitude},"longitude":{self.latitude}}}'
+        return f'{{"latitude":{self.latitude},"longitude":{self.longitude}}}'
 
 
 class Event(models.Model):
