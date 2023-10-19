@@ -16,4 +16,5 @@ def is_dst(dt, timezone="Europe/London"):
 
 @register.simple_tag(name="localise")
 def localise(dt: datetime):
+    print(dt)
     return dt.astimezone(pytz.timezone('Europe/London')).strftime("%b. %#d, %Y, %#I:%M %p")
