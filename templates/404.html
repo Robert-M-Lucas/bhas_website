@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Not Found</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+    <link rel="icon" href="{% static 'icon.png' %}">
+</head>
+
+<body style="height: 100vh">
+    <div class="h-100 d-flex align-items-center justify-content-center">
+        <div class="text-center">
+            <h1>404 - Not Found</h1>
+            <p class="text-muted">
+                <b><a style="text-decoration: none;" href="/" onclick="window.history.back();return false;">Back</a></b> ● <b><a style="text-decoration: none;" href="/">Home</a></b>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

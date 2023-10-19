@@ -72,7 +72,11 @@ def edit(request, event_id):
 
     error = EditError()
     saved = False
-    event = Event.objects.get(id=event_id)
+
+    try:
+        event = Event.objects.get(id=event_id)
+    except Event.DoesNotExist:
+        return render(request, "404.html")
 
     zones = Zone.objects.filter(
         Q(event_id=event_id)
@@ -91,28 +95,35 @@ def edit(request, event_id):
             title = title[:50]
 
         if len(description) == 0:
-            error.title = "Description can't be empty"
+            error.description = "Description can't be empty"
         elif len(description) > 1000:
-            error.title = "Description must have fewer than 1000 character"
+            error.description = "Description must have fewer than 1000 character"
             description = description[:1000]
 
         try:
             start_time = datetime.strptime(start_time, "%d/%m/%Y %H:%M:%S")
-            print(start_time)
-            start_time = datetime.loc(tzinfo=pytz.timezone("Europe/London"))
-            start_time = start_time.astimezone(pytz.utc)
+            try:
+                start_time = pytz.timezone("Europe/London").localize(start_time)
+            except pytz.exceptions.AmbiguousTimeError:
+                start_time = start_time = pytz.timezone("Europe/London").localize(start_time, is_dst=False)
         except ValueError:
             error.start_time = "Improperly formatted date/time"
             start_time = now()
 
         try:
             end_time = datetime.strptime(end_time, "%d/%m/%Y %H:%M:%S")
-            end_time = end_time.replace(tzinfo=pytz.timezone("Europe/London"))
+            try:
+                end_time = pytz.timezone("Europe/London").localize(end_time)
+            except pytz.exceptions.AmbiguousTimeError:
+                end_time = end_time = pytz.timezone("Europe/London").localize(end_time, is_dst=False)
         except ValueError:
-            error.start_time = "Improperly formatted date/time"
+            error.end_time = "Improperly formatted date/time"
             end_time = now()
 
-        print(start_time)
+        if end_time < start_time and error.end_time is None:
+            error.end_time = "Event ends before it start"
+            end_time = start_time
+
         event.title = title
         event.description = description
         event.start_time = start_time
@@ -133,11 +144,21 @@ def edit(request, event_id):
                   )
 
 
+def edit_zones(request, event_id):
+    if not request.user.is_authenticated:
+        return redirect("/auth/login")
+
+    return render(request, "backend/edit_zones.html")
+
+
 def delete(request, event_id):
     if not request.user.is_authenticated:
         return redirect("/auth/login")
 
-    event = Event.objects.get(id=event_id)
+    try:
+        event = Event.objects.get(id=event_id)
+    except Event.DoesNotExist:
+        return render(request, "404.html")
     event.deleted = True
     event.save()
 
@@ -148,7 +169,10 @@ def restore(request, event_id):
     if not request.user.is_authenticated:
         return redirect("/auth/login")
 
-    event = Event.objects.get(id=event_id)
+    try:
+        event = Event.objects.get(id=event_id)
+    except Event.DoesNotExist:
+        return render(request, "404.html")
     event.deleted = False
     event.save()
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit {{ event.title }}</title>
+    <title>Edit: {{ event.title }}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
     <link rel="icon" href="{% static 'icon.png' %}">
@@ -19,22 +19,35 @@
             <div class="mb-3">
                 <label for="title" class="form-label">Title <span class="text-muted">(max 50 characters)</span></label>
                 <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}">
+                {% if error.title %}
+                    <label for="title" class="form-label text-danger"><b>{{ error.title }}</b></label>
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="description">Description <span class="text-muted">(max 1000 characters)</span></label>
                 <textarea class="form-control" id="description" rows="3"  name="description">{{ event.description }}</textarea>
+                {% if error.description %}
+                    <label for="description" class="form-label text-danger"><b>{{ error.description }}</b></label>
+                {% endif %}
             </div>
             {% load localise_strict %}
             <div class="mb-3">
                 <label for="start-time" class="form-label">Start Time <span class="text-muted">(use format [DD/MM/YYYY HH:MM:SS])</span></label>
                 <input type="text" class="form-control" id="start-time" name="start-time" value="{% localise_strict event.start_time %}">
+                {% if error.start_time %}
+                    <label for="start-time" class="form-label text-danger"><b>{{ error.start_time }}</b></label>
+                {% endif %}
             </div>
             <div class="mb-3">
                 <label for="end-time" class="form-label">End Time <span class="text-muted">(use format [DD/MM/YYYY HH:MM:SS])</span></label>
                 <input type="text" class="form-control" id="end-time" name="end-time" value="{% localise_strict event.end_time %}">
+                {% if error.end_time %}
+                    <label for="end-time" class="form-label text-danger"><b>{{ error.end_time }}</b></label>
+                {% endif %}
             </div>
             <div class="mb-3">
                 <button class="btn btn-outline-success" type="submit">Save</button>
+                <a href="zones"><button class="btn btn-primary" type="button">Edit Zones</button></a>
             </div>
         </form>
     </div>
