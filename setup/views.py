@@ -113,6 +113,12 @@ def edit(request, event_id):
         latitude = request.POST["latitude"]
         longitude = request.POST["longitude"]
 
+        post_dict = dict(request.POST)
+        for k in ["title", "description", "start-time", "end-time", "latitude", "longitude"]: post_dict.pop(k)
+        print(post_dict)
+
+        print(request.POST)
+
         if len(title) == 0:
             error.title = "Title can't be empty"
         elif len(title) > 50:
