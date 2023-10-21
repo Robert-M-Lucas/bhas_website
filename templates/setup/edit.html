@@ -9,6 +9,7 @@
     <link rel="icon" href="{% static 'icon.png' %}">
     <script src="{% static 'leaflet/leaflet.js' %}"></script>
     <script src="{% static 'setup/edit.js' %}" defer></script>
+    <script src="{% static 'setup/edit_zones.js' %}" defer></script>
 </head>
 <body>
     {% include "public/header_snippet.html" %}
@@ -18,7 +19,7 @@
         {% endif %}
         <form action="" method="post">
             {% csrf_token %}
-            <legend>Edit Event</legend>
+            <legend>Edit Event Details</legend>
             <div class="mb-3">
                 <label for="title" class="form-label">Title <span class="text-muted">(max 50 characters)</span></label>
                 <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}">
@@ -50,11 +51,9 @@
             </div>
         
             <p class="mb-1">Click to select a rough centre for the event:</p>
-            <div id="map" style="height: 30rem; width: 100%">
-                
-            </div>
-            <button onclick="goToRealPosition()" type="button">Recentre</button>
-            <button onclick="goToMarker()" type="button">Find Marker</button>
+            <div id="map" style="height: 30rem; width: 100%"></div>
+            <button onclick="goToRealPosition()" type="button">Go to my position</button>
+            <button onclick="goToMarker()" type="button">Go to event centre</button>
         
             <div class="input-group mt-3 mb-3">
                 <span class="input-group-text">Latitude</span>
@@ -66,10 +65,27 @@
                 {% endif %}
             </div>
         
+            <legend>Setup Zones</legend>
+        
+            <div id="map-zones" style="height: 30rem; width: 100%"></div>
+            <button onclick="goToRealPositionZones()" type="button">Go to my position</button>
+            <button onclick="goToMarkerZones()" type="button">Go to event centre</button>
+        
+            <div class="container mt-3" id="zone-container">
+                <p class="text-muted" id="no-zone-text" {% if zones.count != 0 %}style="display: none"{% endif %}>No zones created</p>
+                {% for zone in zones %}
+                {% endfor %}
+                <div class="mt-3 mb-3">
+                    <button class="btn btn-outline-primary" type="button" onclick="createZone(null, 'New Zone', null, null, null, '{% localise_strict now %}', '{% localise_strict now %}', null, true, null)">Create Zone</button>
+                </div>
+            </div>
+            
+        
             <div class="mt-3 mb-3">
                 <button class="btn btn-outline-success" type="submit">Save</button>
-                <a href="zones"><button class="btn btn-primary" type="button">Edit Zones</button></a>
             </div>
+        
+            {% include "setup/edit_zone_template.html" %}
         </form>
     </div>
 </body>

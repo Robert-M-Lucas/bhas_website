@@ -1,6 +1,6 @@
 const map = L.map('map', {
     center: [51.505, -0.09],
-    zoom: 13
+    zoom: 15
 });
 
 map.on('click', onMapClick)
@@ -13,14 +13,14 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 function goToRealPosition() {
     navigator.geolocation.getCurrentPosition(function(location) {
-        map.flyTo([location.coords.latitude, location.coords.longitude], 13);
+        map.flyTo([location.coords.latitude, location.coords.longitude], 15);
     });
 }
 
 function goToMarker() {
     if (marker === null) { return; }
 
-    map.flyTo(marker.getLatLng(), 13);
+    map.flyTo(marker.getLatLng(), 15);
 }
 
 function onMapClick(e) {

@@ -172,7 +172,8 @@ def edit(request, event_id):
                       "center": Position.from_string(event.center),
                       "zones": zones,
                       "error": error,
-                      "saved": saved
+                      "saved": saved,
+                      "now": now()
                   }
                   )
 
