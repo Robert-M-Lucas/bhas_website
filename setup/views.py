@@ -100,15 +100,23 @@ class ZoneEditError:
 def time_from_strict_string(string):
     error = None
     time = None
+    dtime = None
     try:
-        dtime = datetime.strptime(string, "%d/%m/%Y %H:%M:%S")
+        dtime = datetime.strptime(string, "%Y-%m-%dT%H:%M:%S")
+    except ValueError as e:
+        try:
+            dtime = datetime.strptime(string, "%Y-%m-%dT%H:%M")
+        except ValueError as e:
+            print(e)
+            error = "Improperly formatted date/time"
+            time = now()
+
+    if error is None:
         try:
             time = pytz.timezone("Europe/London").localize(dtime)
         except pytz.exceptions.AmbiguousTimeError:
             time = pytz.timezone("Europe/London").localize(dtime, is_dst=False)
-    except ValueError:
-        error = "Improperly formatted date/time"
-        time = now()
+
 
     return time, error
 

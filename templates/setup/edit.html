@@ -19,6 +19,7 @@
         <form action="" method="post">
             {% csrf_token %}
             <legend>Edit Event Details</legend>
+        <div class="container">
             <div class="mb-3">
                 <label for="title" class="form-label">Title <span class="text-muted">(max 50 characters)</span></label>
                 <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}">
@@ -34,15 +35,15 @@
                 {% endif %}
             </div>
             <div class="mb-3">
-                <label for="start-time" class="form-label">Start Time <span class="text-muted">(use format [DD/MM/YYYY HH:MM:SS])</span></label>
-                <input type="text" class="form-control" id="start-time" name="start-time" value="{% localise_strict event.start_time %}">
+                <label for="start-time" class="form-label">Start Time</label>
+                <input type="datetime-local" step="1"  class="form-control" id="start-time" name="start-time" value="{% localise_strict event.start_time %}">
                 {% if error.start_time %}
                     <label for="start-time" class="form-label text-danger"><b>{{ error.start_time }}</b></label>
                 {% endif %}
             </div>
             <div class="mb-3">
-                <label for="end-time" class="form-label">End Time <span class="text-muted">(use format [DD/MM/YYYY HH:MM:SS])</span></label>
-                <input type="text" class="form-control" id="end-time" name="end-time" value="{% localise_strict event.end_time %}">
+                <label for="end-time" class="form-label">End Time</label>
+                <input type="datetime-local" step="1" class="form-control" id="end-time" name="end-time" value="{% localise_strict event.end_time %}">
                 {% if error.end_time %}
                     <label for="end-time" class="form-label text-danger"><b>{{ error.end_time }}</b></label>
                 {% endif %}
