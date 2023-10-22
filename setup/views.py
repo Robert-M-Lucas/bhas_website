@@ -168,6 +168,9 @@ def edit(request, event_id):
 
         post_dict = dict(request.POST)
         for k in ["title", "description", "start-time", "end-time", "latitude", "longitude"]: post_dict.pop(k)
+        all_ids = [z.id for z in Zone.objects.filter(
+            Q(event_id=event_id)
+        ).order_by('start_time')]
 
         for key in post_dict.keys():
             match = "title-zone-"
@@ -236,6 +239,7 @@ def edit(request, event_id):
                 ).id
             else:
                 z_id = int(name)
+                all_ids.remove(z_id)
                 zone = Zone.objects.get(id=z_id)
                 zone.start_time = z_start_time
                 zone.end_time = z_end_time
@@ -254,6 +258,9 @@ def edit(request, event_id):
                     z_index_error,
                     z_time_error
                 )
+
+        for z_id in all_ids:
+            Zone.objects.get(id=z_id).delete()
 
         event.title = title
         event.description = description

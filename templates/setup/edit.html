@@ -21,15 +21,15 @@
             <legend>Edit Event Details</legend>
         <div class="container">
             <div class="mb-3">
-                <label for="title" class="form-label">Title <span class="text-muted">(max 50 characters)</span></label>
-                <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{ event.title }}" maxlength="50">
                 {% if error.title %}
                     <label for="title" class="form-label text-danger"><b>{{ error.title }}</b></label>
                 {% endif %}
             </div>
             <div class="mb-3">
-                <label for="description">Description <span class="text-muted">(max 1000 characters)</span></label>
-                <textarea class="form-control" id="description" rows="3"  name="description">{{ event.description }}</textarea>
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" rows="3"  name="description" maxlength="1000">{{ event.description }}</textarea>
                 {% if error.description %}
                     <label for="description" class="form-label text-danger"><b>{{ error.description }}</b></label>
                 {% endif %}
