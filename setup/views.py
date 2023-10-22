@@ -166,6 +166,9 @@ def edit(request, event_id):
         except ValueError:
             error.position = "Latitude and longitude must be formatted as two valid decimals"
 
+        if position == "0.0,0.0":
+            error.position = "Event centre must be set up"
+
         post_dict = dict(request.POST)
         for k in ["title", "description", "start-time", "end-time", "latitude", "longitude"]: post_dict.pop(k)
         all_ids = [z.id for z in Zone.objects.filter(

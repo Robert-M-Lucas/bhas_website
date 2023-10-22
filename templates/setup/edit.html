@@ -34,19 +34,35 @@
                     <label for="description" class="form-label text-danger"><b>{{ error.description }}</b></label>
                 {% endif %}
             </div>
+{#            <div class="mb-3">#}
+{#                <label for="start-time" class="form-label">Start Time</label>#}
+{#                <input type="datetime-local" step="1"  class="form-control" id="start-time" name="start-time" value="{% localise_strict event.start_time %}">#}
+{#                {% if error.start_time %}#}
+{#                    <label for="start-time" class="form-label text-danger"><b>{{ error.start_time }}</b></label>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#            <div class="mb-3">#}
+{#                <label for="end-time" class="form-label">End Time</label>#}
+{#                <input type="datetime-local" step="1" class="form-control" id="end-time" name="end-time" value="{% localise_strict event.end_time %}">#}
+{#                {% if error.end_time %}#}
+{#                    <label for="end-time" class="form-label text-danger"><b>{{ error.end_time }}</b></label>#}
+{#                {% endif %}#}
+{#            </div>#}
             <div class="mb-3">
-                <label for="start-time" class="form-label">Start Time</label>
-                <input type="datetime-local" step="1"  class="form-control" id="start-time" name="start-time" value="{% localise_strict event.start_time %}">
-                {% if error.start_time %}
-                    <label for="start-time" class="form-label text-danger"><b>{{ error.start_time }}</b></label>
-                {% endif %}
-            </div>
-            <div class="mb-3">
-                <label for="end-time" class="form-label">End Time</label>
-                <input type="datetime-local" step="1" class="form-control" id="end-time" name="end-time" value="{% localise_strict event.end_time %}">
-                {% if error.end_time %}
-                    <label for="end-time" class="form-label text-danger"><b>{{ error.end_time }}</b></label>
-                {% endif %}
+                <div class="input-group">
+                    <span class="input-group-text">Start Time</span>
+                    <label for="start-time"></label>
+                    <input type="datetime-local" step="1" class="form-control" name="start-time" value="{% localise_strict event.end_time %}">
+                    <span class="input-group-text">End Time</span>
+                    <label for="end-time"></label>
+                    <input type="datetime-local" step="1" class="form-control" name="end-time" value="{% localise_strict event.end_time %}">
+                    {% if error.start_time %}
+                        <label for="start-time" class="form-label text-danger"><b>Start Time: {{ error.start_time }}</b></label>
+                    {% endif %}
+                     {% if error.end_time %}
+                        <label for="end-time" class="form-label text-danger"><b>End Time: {{ error.end_time }}</b></label>
+                    {% endif %}
+                </div>
             </div>
         
             <p class="mb-1">Click to select a rough centre for the event:</p>
@@ -54,17 +70,17 @@
             <button onclick="goToRealPosition()" type="button">Go to my position</button>
             <button onclick="goToMarker()" type="button">Go to event centre</button>
         
-            <div class="input-group mt-3 mb-3">
+            <div class="input-group mt-3 mb-0">
                 <span class="input-group-text">Latitude</span>
                 <input id="latitude" name="latitude" onchange="onInputChange()" onkeyup="onInputChange()" type="text" class="form-control" placeholder="e.g. -2.12341234" aria-label="Latitude" value="{{ center.latitude }}">
                 <span class="input-group-text">Longitude</span>
                 <input id="longitude" name="longitude" onchange="onInputChange()" onkeyup="onInputChange()" type="text" class="form-control" placeholder="e.g. 2.12341234" aria-label="Longitude" value="{{ center.longitude }}">
-                {% if error.position %}
-                    <label for="longitude" class="form-label text-danger"><b>{{ error.position }}</b></label>
-                {% endif %}
             </div>
+            {% if error.position %}
+                <label for="longitude" class="form-label text-danger mb-3"><b>{{ error.position }}</b></label>
+            {% endif %}
         
-            <legend>Setup Zones</legend>
+            <legend class="mt-3">Setup Zones</legend>
         
             <div id="map-zones" style="height: 30rem; width: 100%"></div>
             <button onclick="goToRealPositionZones()" type="button">Go to my position</button>
@@ -73,12 +89,12 @@
             <div class="container mt-3" id="zone-container">
                 <p class="text-muted" id="no-zone-text" {% if zones.count != 0 %}style="display: none"{% endif %}>No zones created</p>
                 <div class="mt-3 mb-3">
-                    <button class="btn btn-outline-primary" type="button" onclick="createZone(null, 'New Zone', null, null, null, '{% localise_strict now %}', '{% localise_strict now %}', null, true, null)">Create Zone</button>
+                    <button class="btn btn-success" type="button" onclick="createZone(null, 'New Zone', null, null, null, '{% localise_strict now %}', '{% localise_strict now %}', null, true, null)">Create Zone</button>
                 </div>
             </div>
         
             <div class="mt-3 mb-3">
-                <button class="btn btn-outline-success" type="submit">Save</button>
+                <button class="btn btn-success" type="submit">Save</button>
             </div>
         
             {% include "setup/edit_zone_template.html" %}
