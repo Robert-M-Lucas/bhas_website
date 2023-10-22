@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"/>
     <link rel="icon" href="{% static 'icon.png' %}">
     <script src="{% static 'leaflet/leaflet.js' %}"></script>
-    <script src="{% static 'setup/edit.js' %}" defer></script>
-    <script src="{% static 'setup/edit_zones.js' %}" defer></script>
+    {% load localise_strict %}
 </head>
 <body>
     {% include "public/header_snippet.html" %}
@@ -34,7 +33,6 @@
                     <label for="description" class="form-label text-danger"><b>{{ error.description }}</b></label>
                 {% endif %}
             </div>
-            {% load localise_strict %}
             <div class="mb-3">
                 <label for="start-time" class="form-label">Start Time <span class="text-muted">(use format [DD/MM/YYYY HH:MM:SS])</span></label>
                 <input type="text" class="form-control" id="start-time" name="start-time" value="{% localise_strict event.start_time %}">
@@ -73,19 +71,29 @@
         
             <div class="container mt-3" id="zone-container">
                 <p class="text-muted" id="no-zone-text" {% if zones.count != 0 %}style="display: none"{% endif %}>No zones created</p>
-                {% for zone in zones %}
-                {% endfor %}
                 <div class="mt-3 mb-3">
                     <button class="btn btn-outline-primary" type="button" onclick="createZone(null, 'New Zone', null, null, null, '{% localise_strict now %}', '{% localise_strict now %}', null, true, null)">Create Zone</button>
                 </div>
             </div>
-            
         
             <div class="mt-3 mb-3">
                 <button class="btn btn-outline-success" type="submit">Save</button>
             </div>
         
             {% include "setup/edit_zone_template.html" %}
+        
+            <script src="{% static 'setup/edit.js' %}"></script>
+            <script src="{% static 'setup/edit_zones.js' %}"></script>
+            {% for zone in zones %}
+                <script defer>
+                    createZone({{ zone.z.id }}, 
+                        "{{ zone.z.title }}", {% if zone.error.title %}"{{ zone.error.title }}"{% else %}null{% endif %}, 
+                        {{ zone.z.index }}, {% if zone.error.index %}"{{ zone.error.index }}"{% else %}null{% endif %}, 
+                        "{% localise_strict zone.z.start_time %}", "{% localise_strict zone.z.end_time %}", {% if zone.error.time %}"{{ zone.error.time }}"{% else %}null{% endif %},
+                        {% if zone.z.is_circle %}true{% else %}false{% endif %}, 
+                        null);
+                </script>
+            {% endfor %}
         </form>
     </div>
 </body>

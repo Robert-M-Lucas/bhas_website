@@ -1,3 +1,5 @@
+import typing
+
 from django.shortcuts import render
 
 from dataclasses import dataclass
@@ -84,10 +86,31 @@ class EditError:
     start_time: str = None
     end_time: str = None
     position: str = None
+    zones: typing.Dict[int, str] = None
 
     def is_error(self):
-        return self.title is not None or self.description is not None or self.start_time is not None or self.end_time is not None or self.position is not None
+        return self.title is not None or self.description is not None or self.start_time is not None or self.end_time is not None or self.position is not None or self.zones is not None
 
+@dataclass
+class ZoneEditError:
+    title: str = None
+    index: str = None
+    time: str = None
+
+def time_from_strict_string(string):
+    error = None
+    time = None
+    try:
+        dtime = datetime.strptime(string, "%d/%m/%Y %H:%M:%S")
+        try:
+            time = pytz.timezone("Europe/London").localize(dtime)
+        except pytz.exceptions.AmbiguousTimeError:
+            time = pytz.timezone("Europe/London").localize(dtime, is_dst=False)
+    except ValueError:
+        error = "Improperly formatted date/time"
+        time = now()
+
+    return time, error
 
 def edit(request, event_id):
     if not request.user.is_authenticated:
@@ -101,10 +124,6 @@ def edit(request, event_id):
     except Event.DoesNotExist:
         return render(request, "404.html")
 
-    zones = Zone.objects.filter(
-        Q(event_id=event_id)
-    ).order_by('start_time')
-
     if request.POST:
         title = request.POST["title"]
         description = request.POST["description"]
@@ -112,12 +131,6 @@ def edit(request, event_id):
         end_time = request.POST["end-time"]
         latitude = request.POST["latitude"]
         longitude = request.POST["longitude"]
-
-        post_dict = dict(request.POST)
-        for k in ["title", "description", "start-time", "end-time", "latitude", "longitude"]: post_dict.pop(k)
-        print(post_dict)
-
-        print(request.POST)
 
         if len(title) == 0:
             error.title = "Title can't be empty"
@@ -131,28 +144,12 @@ def edit(request, event_id):
             error.description = "Description must have fewer than 1000 character"
             description = description[:1000]
 
-        try:
-            start_time = datetime.strptime(start_time, "%d/%m/%Y %H:%M:%S")
-            try:
-                start_time = pytz.timezone("Europe/London").localize(start_time)
-            except pytz.exceptions.AmbiguousTimeError:
-                start_time = start_time = pytz.timezone("Europe/London").localize(start_time, is_dst=False)
-        except ValueError:
-            error.start_time = "Improperly formatted date/time"
-            start_time = now()
+        start_time, error.start_time = time_from_strict_string(start_time)
+        end_time, error.end_time = time_from_strict_string(end_time)
 
-        try:
-            end_time = datetime.strptime(end_time, "%d/%m/%Y %H:%M:%S")
-            try:
-                end_time = pytz.timezone("Europe/London").localize(end_time)
-            except pytz.exceptions.AmbiguousTimeError:
-                end_time = pytz.timezone("Europe/London").localize(end_time, is_dst=False)
-        except ValueError:
-            error.end_time = "Improperly formatted date/time"
-            end_time = now()
-
-        if end_time < start_time and error.end_time is None:
-            error.end_time = "Event ends before it start"
+        if end_time < start_time:
+            if error.end_time is None:
+                error.end_time = "Event ends before it start"
             end_time = start_time
 
         position = "0.0,0.0"
@@ -161,34 +158,126 @@ def edit(request, event_id):
         except ValueError:
             error.position = "Latitude and longitude must be formatted as two valid decimals"
 
+        post_dict = dict(request.POST)
+        for k in ["title", "description", "start-time", "end-time", "latitude", "longitude"]: post_dict.pop(k)
+
+        for key in post_dict.keys():
+            match = "title-zone-"
+            if len(key) < len(match) or key[:len(match)] != match:
+                continue
+
+            name = key[len(match):]
+            if name == "x": continue
+
+            z_title = request.POST[f"title-zone-{name}"]
+            z_index = request.POST[f"index-zone-{name}"]
+            z_start_time, z_start_time_error = time_from_strict_string(request.POST[f"start-time-zone-{name}"])
+            z_end_time, z_end_time_error = time_from_strict_string(request.POST[f"end-time-zone-{name}"])
+            z_circular = f"circular-zone-{name}" in post_dict.keys()
+
+            z_title_error = None
+            if len(z_title) > 50:
+                z_title = z_title[:50]
+                z_title_error = "Zone name must be shorter than 50 characters"
+            elif len(z_title) == 0:
+                z_title = "New Zone"
+                z_title_error = "Zone name must be at least one chatacter"
+
+            if z_start_time_error:
+                z_start_time = now()
+            if z_end_time_error:
+                z_end_time = now()
+
+            if z_start_time_error is None: z_start_time_error = z_end_time_error
+
+            z_time_error = z_start_time_error
+
+            if z_start_time > z_end_time:
+                z_end_time = z_start_time
+                if z_time_error is None:
+                    z_time_error = "Zone ends before it starts"
+
+            z_index_error = None
+            try:
+                z_index = int(z_index)
+            except ValueError:
+                z_index = 0
+                z_index_error = "Index must be an integer greater than 0"
+            if z_index < 0:
+                z_index = 0
+                z_index_error = "Index must be an integer greater than 0"
+
+            z_coords = "0.0,0.0"
+
+            rad = ""
+            if z_circular:
+                rad = "100.0"
+
+            z_id = None
+            if name[0] == "*":
+                z_id = Zone.objects.create(
+                    created_by=request.user,
+                    event_id=event,
+                    start_time=z_start_time,
+                    end_time=z_end_time,
+                    title=z_title,
+                    index=z_index,
+                    is_circle=z_circular,
+                    points_or_center=z_coords,
+                    hole_points_or_radius=rad
+                ).id
+            else:
+                z_id = int(name)
+                zone = Zone.objects.get(id=z_id)
+                zone.start_time = z_start_time
+                zone.end_time = z_end_time
+                zone.title = z_title
+                zone.index = z_index
+                zone.is_circle = z_circular
+                zone.points_or_center = z_coords
+                zone.hole_points_or_radius = rad
+                zone.save()
+
+            if z_time_error or z_index_error or z_title_error:
+                if error.zones is None:
+                    error.zones = {}
+                error.zones[z_id] = ZoneEditError(
+                    z_title_error,
+                    z_index_error,
+                    z_time_error
+                )
+
         event.title = title
         event.description = description
         event.start_time = start_time
         event.end_time = end_time
         event.center = position
 
-        if not error.is_error():
-            event.save()
-            saved = True
+        event.save()
+        saved = True
+
+    zones = Zone.objects.filter(
+        Q(event_id=event_id)
+    ).order_by('start_time')
+
+    z_list = []
+    for z in zones:
+        e = None
+        if error.zones is not None and z.id in error.zones.keys():
+            e = error.zones[z.id]
+        z_list.append({"z": z, "error": e})
 
     return render(request, "setup/edit.html",
                   {
                       "pagename": "setup",
                       "event": event,
                       "center": Position.from_string(event.center),
-                      "zones": zones,
+                      "zones": z_list,
                       "error": error,
                       "saved": saved,
                       "now": now()
                   }
                   )
-
-
-def edit_zones(request, event_id):
-    if not request.user.is_authenticated:
-        return redirect("/auth/login")
-
-    return render(request, "setup/edit_zones.html")
 
 
 def delete(request, event_id):

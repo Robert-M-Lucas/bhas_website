@@ -1,7 +1,18 @@
-const map_zones = L.map('map-zones', {
-    center: [51.505, -0.09],
-    zoom: 15
-});
+let map_zones;
+
+if (initial_lat !== "0.0" || initial_long !== "0.0") {
+    map_zones = L.map('map-zones', {
+        center: [parseFloat(initial_lat), parseFloat(initial_long)],
+        zoom: 15
+    });
+}
+else {
+    map_zones = L.map('map-zones', {
+        center: [51.505, -0.09],
+        zoom: 15
+    });
+    goToRealPosition()
+}
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -16,13 +27,6 @@ function goToRealPositionZones() {
 function goToMarkerZones() {
     if (marker === null) { return; }
     map_zones.flyTo(marker.getLatLng(), 15);
-}
-
-if (initial_lat !== "0.0" || initial_long !== "0.0") {
-    goToMarkerZones();
-}
-else {
-    goToRealPositionZones()
 }
 
 let zone_counter = 0;
@@ -66,7 +70,7 @@ function createZone(id, title, title_error, index, index_error,
     zone_title.name = zone_title.id = "title-zone-" + sid;
     zone_title.value = title;
     let zone_title_error = document.getElementById("title-zone-x-error");
-    zone_title_error.id = "title-zone-" + sid + "error";
+    zone_title_error.id = "title-zone-" + sid + "-error";
     zone_title_error.for = "title-zone-" + sid;
     if (title_error !== null && title_error.length > 0) {
         zone_title_error.style.cssText = "";
@@ -80,7 +84,7 @@ function createZone(id, title, title_error, index, index_error,
     zone_index.name = zone_index.id = "index-zone-" + sid;
     zone_index.value = index.toString();
     let zone_index_error = document.getElementById("index-zone-x-error");
-    zone_index_error.id = "index-zone-" + sid + "error";
+    zone_index_error.id = "index-zone-" + sid + "-error";
     zone_index_error.for = "index-zone-" + sid;
     if (index_error !== null && title_error.length > 0) {
         zone_index_error.style.cssText = "";
@@ -100,7 +104,7 @@ function createZone(id, title, title_error, index, index_error,
     zone_end_time.name = zone_end_time.id = "end-time-zone-" + sid;
     zone_end_time.value = end_time;
     let zone_time_error = document.getElementById("time-zone-x-error");
-    zone_time_error.id = "time-zone-" + sid + "error";
+    zone_time_error.id = "time-zone-" + sid + "-error";
     zone_time_error.for = "end-time-zone-" + sid;
     if (time_error !== null && title_error.length > 0) {
         zone_time_error.style.cssText = "";
