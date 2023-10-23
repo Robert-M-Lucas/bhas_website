@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
 
-from backend.models import Event
+from backend.models import Event, SocietyMessage
 
 
 def index(request):
@@ -19,11 +19,15 @@ def index(request):
         else:
             future_event = future_events[0]
 
+    society_message = SocietyMessage.get_message()
+
     return render(request, 'public/index.html',
                   {
                       "pagename": "status",
                       "active_event": active_event,
-                      "future_event": future_event
+                      "future_event": future_event,
+                      "society_message": society_message,
+                      "now": now().strftime("%H:%M:%S")
                   }
                   )
 

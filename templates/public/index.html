@@ -12,9 +12,13 @@
     <div class="d-flex align-items-center justify-content-center" style="position: absolute; top: 0; left: 0; height: 100vh; width: 100vw; z-index: -1;">
         <div class="text-center">
             {% load localise %}
+            <p class="mb-0">Message from the Bath Hide and Seek Society:</p>
+            <h1 class="mt-0 mb-4">{{ society_message }}</h1>
+
             {% if active_event %}
                 <h1 class="text-success mb-0">Event In Progress</h1>
                 <p class="fw-bold text-muted">Ends: {% localise active_event.end_time  %}</p>
+                <p class="text-muted">Ends: {% localise active_event.end_time  %}</p>
             {% elif future_event %}
                 <h1 class="text-danger mb-0">No Active Event</h1>
                 <p class="fw-bold text-muted">Next event: {% localise future_event.start_time  %}</p>
@@ -22,6 +26,7 @@
                 <h1 class="text-danger mb-0">No Active Event</h1>
                 <p class="fw-bold text-muted">No upcoming events</p>
             {% endif %}
+            <p class="text-muted">Last refreshed: {{ now }}</p>
         </div>
     </div>
 </body>
