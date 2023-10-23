@@ -3,6 +3,6 @@
         <h5 class="card-title" style="font-size: 1.1rem">{{ event.title }}</h5>
         {% load localise %}
         <h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.8rem">
-            {% localise event.start_time %} → {% localise event.end_time %} | {{ event.created_by }} | {{ event.id }}
+            {% localise event.start_time %} → {% localise event.end_time %} | Created by: {{ event.created_by }}
         </h6>
         <p class="card-text" style="padding-left: 10px">{{ event.description }}</p>

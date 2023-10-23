@@ -34,12 +34,16 @@ def setup(request):
             SocietyMessage.set_message(society_message)
             return redirect("/setup")
 
+    active_event = future_events = Event.objects.filter(
+        start_time__lte=now(), end_time__gte=now(), deleted=False
+    ).order_by('start_time')
+
     future_events = Event.objects.filter(
-        Q(start_time__gte=now(), deleted=False)
+        start_time__gte=now(), deleted=False
     ).order_by('start_time')
 
     past_events = Event.objects.filter(
-        Q(start_time__lt=now(), deleted=False)
+        end_time__lt=now(), deleted=False
     ).order_by('-start_time')
 
     deleted_events = Event.objects.filter(
@@ -49,6 +53,7 @@ def setup(request):
     return render(request, "setup/setup.html",
                   {
                       "pagename": "setup",
+                      "active_event": active_event,
                       "future_events": future_events,
                       "past_events": past_events,
                       "deleted_events": deleted_events,

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "0.0.0.0",
     "172.26.95.203",
+    "172.26.127.255",
     "bhas.eu.pythonanywhere.com"
 ]
 
