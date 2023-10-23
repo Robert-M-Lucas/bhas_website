@@ -29,7 +29,7 @@
             <a href="new"><button class="btn btn-success">Create new event</button></a>
         </div>
     
-        <h1>Upcoming Events</h1>
+        <h2>Upcoming Events</h2>
         <div class="container">
         {% for event in future_events %}
             {% include "setup/setup_event_start_snippet.html" %}
@@ -42,7 +42,7 @@
         {% endif %}
         </div>
             
-        <h1>Past Events</h1>
+        <h2>Past Events</h2>
         <div class="container">
         {% for event in past_events %}
             {% include "setup/setup_event_start_snippet.html" %}
@@ -55,7 +55,7 @@
         {% endif %}
         </div>
     
-        <h1>Deleted Events</h1>
+        <h2>Deleted Events</h2>
         <div class="container">
         {% for event in deleted_events %}
             {% include "setup/setup_event_start_snippet.html" %}

@@ -9,5 +9,20 @@
 </head>
 <body>
     {% include "public/header_snippet.html" %}
+    <div class="d-flex align-items-center justify-content-center" style="position: absolute; top: 0; left: 0; height: 100vh; width: 100vw; z-index: -1;">
+        <div class="text-center">
+            {% load localise %}
+            {% if active_event %}
+                <h1 class="text-success mb-0">Event In Progress</h1>
+                <p class="fw-bold text-muted">Ends: {% localise active_event.end_time  %}</p>
+            {% elif future_event %}
+                <h1 class="text-danger mb-0">No Active Event</h1>
+                <p class="fw-bold text-muted">Next event: {% localise future_event.start_time  %}</p>
+            {% else %}
+                <h1 class="text-danger mb-0">No Active Event</h1>
+                <p class="fw-bold text-muted">No upcoming events</p>
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>
