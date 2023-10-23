@@ -124,6 +124,15 @@ function createZone(id, title, title_error, index, index_error,
     let zone_show = document.getElementById("show-zone-x");
     zone_show.name = zone_show.id = "show-zone-" + sid;
 
+    zone_show.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            showZone(sid)
+        }
+        else {
+            hideZone(sid)
+        }
+    });
+
     let zone_edit_label = document.getElementById("edit-zone-x-label");
     zone_edit_label.id = "edit-zone-" + sid + "-label";
     zone_edit_label.for = "edit-zone-" + sid;
@@ -151,8 +160,22 @@ function deleteZone(sid) {
     document.getElementById("zone-" + sid).remove();
 }
 
-function showZone(sid) {}
-function hideZone(sid) {}
+let shownZones = {}
+function showZone(sid) {
+    shownZones[sid] =
+        [
+            "circle",
+            L.circle([50.5, 30.5], {radius: 400}).addTo(map_zones),
+            L.marker([50.5, 30.5]).addTo(map_zones)
+    ];
+}
+
+function hideZone(sid) {
+    if (!(sid in shownZones)) { return; }
+    shownZones[sid][1].removeFrom(map_zones);
+    shownZones[sid][2].removeFrom(map_zones);
+    delete shownZones[sid];
+}
 
 let last_edited = null;
 function startEditingZone(sid) {

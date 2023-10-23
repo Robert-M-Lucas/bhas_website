@@ -18,13 +18,13 @@
             {% if active_event %}
                 <h1 class="text-success mb-0">Event In Progress</h1>
                 <p class="fw-bold text-muted">Ends: {% localise active_event.end_time  %}</p>
-                <p class="text-muted">Ends: {% localise active_event.end_time  %}</p>
+                <p class="text-muted mb-0">Ends: {% localise active_event.end_time  %}</p>
             {% elif future_event %}
                 <h1 class="text-danger mb-0">No Active Event</h1>
-                <p class="fw-bold text-muted">Next event: {% localise future_event.start_time  %}</p>
+                <p class="fw-bold text-muted mb-0">Next event: {% localise future_event.start_time  %}</p>
             {% else %}
                 <h1 class="text-danger mb-0">No Active Event</h1>
-                <p class="fw-bold text-muted">No upcoming events</p>
+                <p class="fw-bold text-muted mb-0">No upcoming events</p>
             {% endif %}
             <p class="text-muted">Last refreshed: {{ now }}</p>
         </div>
