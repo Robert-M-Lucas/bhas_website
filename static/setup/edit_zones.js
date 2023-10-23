@@ -111,6 +111,31 @@ function createZone(id, title, title_error, index, index_error,
         zone_time_error.innerText = time_error;
     }
 
+    let zone_circular_label = document.getElementById("circular-zone-x-label");
+    zone_circular_label.id = "circular-zone-" + sid + "-label";
+    zone_circular_label.for = "circular-zone-" + sid;
+    let zone_circular = document.getElementById("circular-zone-x");
+    zone_circular.name = zone_circular.id = "circular-zone-" + sid;
+    zone_circular.checked = circular;
+
+    let zone_show_label = document.getElementById("show-zone-x-label");
+    zone_show_label.id = "show-zone-" + sid + "-label";
+    zone_show_label.for = "show-zone-" + sid;
+    let zone_show = document.getElementById("show-zone-x");
+    zone_show.name = zone_show.id = "show-zone-" + sid;
+
+    let zone_edit_label = document.getElementById("edit-zone-x-label");
+    zone_edit_label.id = "edit-zone-" + sid + "-label";
+    zone_edit_label.for = "edit-zone-" + sid;
+    let zone_edit = document.getElementById("edit-zone-x");
+    zone_edit.id = "edit-zone-" + sid;
+
+    zone_edit.addEventListener('change', (event) => {
+        if (event.currentTarget.checked) {
+            startEditingZone(sid)
+        }
+    });
+
     if (internal_coordinate_error !== null) {
         let ic_error = document.getElementById("ic-zone-x-error");
         ic_error.id = "ic-zone-" + sid + "-error";
@@ -124,4 +149,21 @@ function createZone(id, title, title_error, index, index_error,
 
 function deleteZone(sid) {
     document.getElementById("zone-" + sid).remove();
+}
+
+function showZone(sid) {}
+function hideZone(sid) {}
+
+let last_edited = null;
+function startEditingZone(sid) {
+    showZone(sid);
+    document.getElementById("show-zone-" + sid).checked = true;
+
+    if (last_edited !== null) { stopEditingZone(last_edited); }
+    last_edited = sid;
+}
+
+function stopEditingZone(sid) {
+    hideZone(sid);
+    document.getElementById("show-zone-" + sid).checked = false;
 }
